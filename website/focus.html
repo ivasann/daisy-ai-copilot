@@ -50,6 +50,45 @@
         .break-tint {
             background: linear-gradient(90deg, rgba(213, 249, 255, 0.5) 0%, rgba(236, 246, 255, 0.5) 100%);
         }
+        .focus-blur {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(15, 15, 18, 0.08);
+        }
+        .timer-glow {
+            box-shadow: 0 24px 60px -30px rgba(255, 123, 190, 0.5);
+        }
+        .breath-ring {
+            position: absolute;
+            inset: -12px;
+            border-radius: 999px;
+            border: 2px dashed rgba(255, 123, 190, 0.35);
+            animation: breatheRing 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes breatheRing {
+            0% { transform: scale(0.94); opacity: 0.5; }
+            50% { transform: scale(1.06); opacity: 0.9; }
+            100% { transform: scale(0.94); opacity: 0.5; }
+        }
+        .badge-pop {
+            animation: badgePop 0.6s ease-out;
+        }
+        @keyframes badgePop {
+            0% { transform: translateY(6px) scale(0.95); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .focus-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(248, 248, 252, 0.65);
+            backdrop-filter: blur(18px);
+            z-index: 5;
+            pointer-events: none;
+        }
+        body.dark .focus-overlay {
+            background: rgba(9, 10, 14, 0.55);
+        }
 
         .theme-switcher {
             position: fixed;
@@ -212,6 +251,7 @@
         <div class="absolute top-[65%] right-[12%] w-32 h-32 bg-white/50 rounded-full blur-2xl floaty"
             style="animation-delay: -2s;"></div>
     </div>
+    <div class="focus-overlay"></div>
 
     <nav class="w-full py-6 relative z-10">
         <div class="max-w-5xl mx-auto px-6 flex items-center justify-between">
@@ -257,13 +297,14 @@
                 <span class="px-3 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest bg-white/70 border border-white/60">One Task</span>
             </div>
 
-            <div id="pomodoroCard" class="glass rounded-[26px] p-6 ios-shadow relative overflow-hidden">
+            <div id="pomodoroCard" class="glass rounded-[26px] p-6 ios-shadow relative overflow-hidden timer-glow">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-display text-lg font-semibold text-gray-900">Pomodoro Focus</h3>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">+10 coins</span>
                 </div>
                 <div class="flex items-center justify-center">
                     <div class="relative w-52 h-52">
+                        <div class="breath-ring"></div>
                         <svg class="w-full h-full -rotate-90">
                             <defs>
                                 <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
@@ -298,10 +339,74 @@
                         Reset
                     </button>
                 </div>
-                <p class="text-xs text-gray-500 mt-4 text-center">Demo: 1â€‘minute session awards full coins.</p>
+                <div class="mt-4 grid sm:grid-cols-2 gap-3">
+                    <div class="focus-blur rounded-2xl px-4 py-3">
+                        <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400 mb-1">Durations</p>
+                        <div class="flex items-center gap-2 text-xs text-gray-600">
+                            <span>Focus</span>
+                            <input id="focusMinutesInput" type="number" min="1" value="25"
+                                class="w-14 px-2 py-1 rounded-lg border border-black/10 bg-white/70 text-xs">
+                            <span>Break</span>
+                            <input id="breakMinutesInput" type="number" min="1" value="5"
+                                class="w-14 px-2 py-1 rounded-lg border border-black/10 bg-white/70 text-xs">
+                        </div>
+                    </div>
+                    <div class="focus-blur rounded-2xl px-4 py-3 flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Auto Flow</p>
+                            <p class="text-xs text-gray-600">Auto-start break & next focus</p>
+                        </div>
+                        <button id="autoFlowToggle"
+                            class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-black/10 text-gray-700">
+                            Off
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-3 flex items-center justify-between">
+                    <div class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Sound</div>
+                    <div class="flex gap-2">
+                        <button data-sound="tick" class="sound-btn px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-black/10 text-gray-700">Tick</button>
+                        <button data-sound="bell" class="sound-btn px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-black/10 text-gray-700">Bell</button>
+                        <button data-sound="silent" class="sound-btn px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-black/10 text-gray-700">Silent</button>
+                    </div>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-3 text-center">Demo: 1-minute session awards full coins.</p>
             </div>
 
-            <div class="glass rounded-[22px] p-6 mt-8">
+                        <div class="grid md:grid-cols-2 gap-6 mt-8">
+                <div class="glass rounded-[22px] p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="font-display text-lg font-semibold text-gray-900">Daily Focus Goal</h2>
+                        <span class="text-[10px] uppercase font-bold tracking-widest text-gray-400">4 sessions</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="relative w-24 h-24">
+                            <svg class="w-full h-full -rotate-90">
+                                <circle class="ring-track" cx="48" cy="48" r="40" stroke-width="8" fill="none"></circle>
+                                <circle id="dailyGoalRing" class="ring-progress" cx="48" cy="48" r="40" stroke-width="8"
+                                    fill="none" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-sm font-semibold text-gray-700" id="dailyGoalText">0/4</div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Keep the streak warm.</p>
+                            <p class="text-xs text-gray-400">Complete focus blocks to fill the ring.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass rounded-[22px] p-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="font-display text-lg font-semibold text-gray-900">Smart Focus Insight</h2>
+                        <span class="text-[10px] uppercase font-bold tracking-widest text-gray-400">AI</span>
+                    </div>
+                    <div id="aiMessageCard" class="rounded-2xl bg-white/80 border border-black/10 p-4 text-sm text-gray-700 space-y-2">
+                        <p id="aiMotivation">“You’re building calm momentum. One more session.”</p>
+                        <p id="aiTip" class="text-gray-500">Tip: write the first 3 steps before you start.</p>
+                        <p id="aiInsight" class="text-gray-400 text-xs">Insight: mornings are your most consistent focus window.</p>
+                    </div>
+                </div>
+            </div>
+<div class="glass rounded-[22px] p-6 mt-8">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="font-display text-lg font-semibold text-gray-900">Recent Focus</h2>
                     <span class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Last 3</span>
@@ -331,7 +436,27 @@
                 </div>
             </div>
 
-            <div id="focusToast"
+                        <div class="glass rounded-[22px] p-6 mt-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-display text-lg font-semibold text-gray-900">Focus Stats</h2>
+                    <span class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Local</span>
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Total Sessions</p>
+                        <p id="statTotalSessions" class="text-2xl font-display font-semibold text-gray-900">0</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Longest Streak</p>
+                        <p id="statLongestStreak" class="text-2xl font-display font-semibold text-gray-900">0</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">XP</p>
+                        <p id="statXP" class="text-2xl font-display font-semibold text-gray-900">0</p>
+                    </div>
+                </div>
+            </div>
+<div id="focusToast"
                 class="fixed bottom-6 left-1/2 -translate-x-1/2 hidden bg-black/90 text-white text-xs px-4 py-3 rounded-full shadow-lg">
                 +10 coins added
             </div>
@@ -361,9 +486,161 @@
         window.Dopamine = Dopamine;
     </script>
     <script>
+        const FOCUS_STATE_KEY = "daisy_focus_state_v1";
+        const DAILY_GOAL = 4;
+
+        function todayStr() {
+            const d = new Date();
+            return d.toISOString().slice(0, 10);
+        }
+
+        function loadFocusState() {
+            const raw = localStorage.getItem(FOCUS_STATE_KEY);
+            if (raw) return JSON.parse(raw);
+            const state = {
+                total_sessions: 0,
+                today_sessions: 0,
+                current_streak: 0,
+                longest_streak: 0,
+                last_session_date: null,
+                xp: 0,
+                badges: {
+                    five: false,
+                    ten: false,
+                    twentyfive: false,
+                },
+                sound: "tick",
+                auto_flow: false,
+            };
+            localStorage.setItem(FOCUS_STATE_KEY, JSON.stringify(state));
+            return state;
+        }
+
+        function saveFocusState(state) {
+            localStorage.setItem(FOCUS_STATE_KEY, JSON.stringify(state));
+        }
+
+        function applyStreak(state, dateStr) {
+            if (!state.last_session_date) {
+                state.current_streak = 1;
+                state.last_session_date = dateStr;
+                return;
+            }
+            if (state.last_session_date === dateStr) return;
+            const last = new Date(state.last_session_date);
+            const current = new Date(dateStr);
+            const diffDays = Math.round((current - last) / (1000 * 60 * 60 * 24));
+            if (diffDays === 1) {
+                state.current_streak += 1;
+            } else {
+                state.current_streak = 1;
+            }
+            state.last_session_date = dateStr;
+            state.longest_streak = Math.max(state.longest_streak, state.current_streak);
+        }
+
+        function maybeResetDaily(state) {
+            const today = todayStr();
+            if (state.last_session_date && state.last_session_date !== today) {
+                state.today_sessions = 0;
+            }
+        }
+
+        function updateStatsUI(state) {
+            document.getElementById('statTotalSessions').textContent = state.total_sessions;
+            document.getElementById('statLongestStreak').textContent = state.longest_streak;
+            document.getElementById('statXP').textContent = state.xp;
+
+            const ring = document.getElementById('dailyGoalRing');
+            const text = document.getElementById('dailyGoalText');
+            const ratio = Math.min(state.today_sessions / DAILY_GOAL, 1);
+            const circumference = 2 * Math.PI * 40;
+            if (ring) ring.style.strokeDashoffset = `${circumference - ratio * circumference}`;
+            if (text) text.textContent = `${state.today_sessions}/${DAILY_GOAL}`;
+        }
+
+        function setSoundMode(mode) {
+            const state = loadFocusState();
+            state.sound = mode;
+            saveFocusState(state);
+            document.querySelectorAll('.sound-btn').forEach((btn) => {
+                btn.classList.toggle('bg-black', btn.dataset.sound === mode);
+                btn.classList.toggle('text-white', btn.dataset.sound === mode);
+                btn.classList.toggle('bg-black/10', btn.dataset.sound !== mode);
+                btn.classList.toggle('text-gray-700', btn.dataset.sound !== mode);
+            });
+        }
+
+        function playBell() {
+            const state = loadFocusState();
+            if (state.sound === "silent") return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "sine";
+                osc.frequency.value = state.sound === "bell" ? 660 : 880;
+                gain.gain.value = 0.0001;
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+                osc.stop(ctx.currentTime + 0.26);
+            } catch (_) {
+                // ignore
+            }
+        }
+
+        function showBadgeUnlock(label) {
+            const widget = document.createElement('div');
+            widget.className = 'anime-widget badge-pop';
+            widget.innerHTML = `
+                <div class="anime-badge">??</div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">${label} badge unlocked</p>
+                    <p class="text-[10px] text-gray-500">Keep the streak alive</p>
+                </div>
+            `;
+            document.body.appendChild(widget);
+            setTimeout(() => widget.remove(), 1800);
+        }
+
+        function updateAIMessage() {
+            const motivations = [
+                "You’re building calm momentum. One more session.",
+                "Focus looks good on you. Keep the streak warm.",
+                "Small wins stack fast. You’re almost there."
+            ];
+            const tips = [
+                "Tip: write the first 3 steps before you start.",
+                "Tip: hide notifications for the next 25 minutes.",
+                "Tip: pick one task and finish it fully."
+            ];
+            const insights = [
+                "Insight: mornings are your most consistent focus window.",
+                "Insight: sessions are longer when breaks are shorter.",
+                "Insight: your streak grows fastest on weekdays."
+            ];
+            document.getElementById('aiMotivation').textContent = `“${motivations[Math.floor(Math.random() * motivations.length)]}”`;
+            document.getElementById('aiTip').textContent = tips[Math.floor(Math.random() * tips.length)];
+            document.getElementById('aiInsight').textContent = insights[Math.floor(Math.random() * insights.length)];
+        }
+
+        function showSessionSummary(minutes) {
+            const state = loadFocusState();
+            const summary = document.getElementById('sessionSummary');
+            if (!summary) return;
+            summary.querySelector('#summaryTime').textContent = `${minutes} min`;
+            summary.querySelector('#summaryToday').textContent = state.today_sessions;
+            summary.querySelector('#summaryStreak').textContent = state.current_streak;
+            summary.classList.remove('hidden');
+            setTimeout(() => summary.classList.add('hidden'), 2200);
+        }
+
         let pomodoroTimer = null;
-        const focusDuration = 1 * 60;
-        const breakDuration = 1 * 60;
+        let focusDuration = 25 * 60;
+        let breakDuration = 5 * 60;
         const rewardDurationMinutes = 25;
         let pomodoroLeft = focusDuration;
         let pomodoroMode = "focus";
@@ -400,8 +677,7 @@
             if (pomodoroTimer) return;
             pomodoroTimer = setInterval(async () => {
                 if (pomodoroLeft > 0) {
-                    pomodoroLeft -= 1;
-                    updatePomodoroUI();
+                    pomodoroLeft -= 1;\r\n                    updatePomodoroUI();\r\n                    const s = loadFocusState();\r\n                    if (s.sound === "tick" && pomodoroLeft % 5 === 0) playBell();
                 } else {
                     clearInterval(pomodoroTimer);
                     pomodoroTimer = null;
@@ -441,8 +717,7 @@
                 toast.classList.remove('hidden');
                 setTimeout(() => toast.classList.add('hidden'), 2000);
             }
-            showAnimeWidget("Focus complete! +10");
-            await refreshBalance();
+            showAnimeWidget("Focus complete! +10");\r\n            const state = loadFocusState();\r\n            maybeResetDaily(state);\r\n            state.total_sessions += 1;\r\n            state.today_sessions += 1;\r\n            state.xp += 25;\r\n            applyStreak(state, todayStr());\r\n            if (state.total_sessions >= 5 && !state.badges.five) {\r\n                state.badges.five = true;\r\n                showBadgeUnlock("5 sessions");\r\n            }\r\n            if (state.total_sessions >= 10 && !state.badges.ten) {\r\n                state.badges.ten = true;\r\n                showBadgeUnlock("10 sessions");\r\n            }\r\n            if (state.total_sessions >= 25 && !state.badges.twentyfive) {\r\n                state.badges.twentyfive = true;\r\n                showBadgeUnlock("25 sessions");\r\n            }\r\n            saveFocusState(state);\r\n            updateStatsUI(state);\r\n            updateAIMessage();\r\n            showSessionSummary(rewardDurationMinutes);\r\n            playBell();\r\n            await refreshBalance();
             await refreshHistory();
         }
 
@@ -489,7 +764,7 @@
             const streakEl = document.getElementById('focusStreak');
             if (coinsEl) coinsEl.textContent = balance.coins ?? 0;
             if (levelEl) levelEl.textContent = balance.level ?? 0;
-            if (streakEl) streakEl.textContent = balance.streak ?? 0;
+            const local = loadFocusState();\r\n            if (streakEl) streakEl.textContent = local.current_streak ?? balance.streak ?? 0;
 
             const leaderboard = document.getElementById('leaderboard');
             if (leaderboard) {
@@ -508,13 +783,43 @@
                 });
             }
         }
-
+        function initControls() {
+            const focusInput = document.getElementById('focusMinutesInput');
+            const breakInput = document.getElementById('breakMinutesInput');
+            const autoToggle = document.getElementById('autoFlowToggle');
+            const state = loadFocusState();
+            setSoundMode(state.sound || "tick");
+            autoToggle.textContent = state.auto_flow ? "On" : "Off";
+            autoToggle.classList.toggle('bg-black', state.auto_flow);
+            autoToggle.classList.toggle('text-white', state.auto_flow);
+            autoToggle.addEventListener('click', () => {
+                const s = loadFocusState();
+                s.auto_flow = !s.auto_flow;
+                saveFocusState(s);
+                autoToggle.textContent = s.auto_flow ? "On" : "Off";
+                autoToggle.classList.toggle('bg-black', s.auto_flow);
+                autoToggle.classList.toggle('text-white', s.auto_flow);
+                autoToggle.classList.toggle('bg-black/10', !s.auto_flow);
+                autoToggle.classList.toggle('text-gray-700', !s.auto_flow);
+            });
+            focusInput?.addEventListener('change', () => {
+                const minutes = Math.max(1, Number(focusInput.value || 25));
+                focusDuration = minutes * 60;
+                pomodoroLeft = focusDuration;
+                updatePomodoroUI();
+            });
+            breakInput?.addEventListener('change', () => {
+                const minutes = Math.max(1, Number(breakInput.value || 5));
+                breakDuration = minutes * 60;
+            });
+            document.querySelectorAll('.sound-btn').forEach((btn) => {
+                btn.addEventListener('click', () => setSoundMode(btn.dataset.sound));
+            });
+        }
         document.getElementById('pomodoroStart').addEventListener('click', startPomodoro);
         document.getElementById('pomodoroPause').addEventListener('click', pausePomodoro);
         document.getElementById('pomodoroReset').addEventListener('click', resetPomodoro);
-        updatePomodoroUI();
-        refreshBalance();
-        refreshHistory();
+        updatePomodoroUI();\r\n        refreshBalance();\r\n        refreshHistory();\r\n        updateStatsUI(loadFocusState());\r\n        initControls();\r\n        updateAIMessage();
 
         function showAnimeWidget(text = "Nice! +5") {
             const widget = document.createElement('div');
@@ -565,6 +870,41 @@
 
         // playground removed
     </script>
+    <!-- Session Summary -->
+    <div id="sessionSummary" class="fixed inset-0 z-[120] hidden">
+        <div class="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
+        <div class="relative max-w-sm mx-auto mt-32 focus-blur rounded-[26px] p-6 text-center">
+            <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Session Complete</p>
+            <h3 class="font-display text-2xl font-semibold text-gray-900 mt-2">Nice work</h3>
+            <div class="grid grid-cols-3 gap-3 mt-4 text-sm text-gray-600">
+                <div>
+                    <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Time</p>
+                    <p id="summaryTime" class="font-semibold text-gray-900">25 min</p>
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Today</p>
+                    <p id="summaryToday" class="font-semibold text-gray-900">0</p>
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase font-bold tracking-widest text-gray-400">Streak</p>
+                    <p id="summaryStreak" class="font-semibold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
